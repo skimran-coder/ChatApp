@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+:root {
+  --primary: #f0f0f5; /* Light Grayish Blue */
+  --secondary: #e4e4eb; /* Slightly Darker Light Gray */
+  --accent: #ff6b6b; /* Red (same as dark mode for consistency) */
+  --background-color: #ffffff; /* Pure White */
+  --text-color: #1e1e2c; /* Dark Grayish Blue (reverse of dark mode primary) */
+  --input-text-color: #e0e0e0;
+}
+
+.dark-mode {
+  --primary: #1e1e2c;
+  --secondary: #27293d;
+  --accent: #ff6b6b;
+  --background-color: #121212;
+  --text-color: #e0e0e0;
+  --input-text-color: #1e1e2c;
+}
+
+body {
+  font-family: "inter", "Poppins", Roboto, Oxygen, Ubuntu, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
+}
