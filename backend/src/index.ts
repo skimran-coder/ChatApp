@@ -1,11 +1,11 @@
 import { WebSocketServer, WebSocket } from "ws";
 
-const wss = new WebSocketServer({ port: 5000 }, () =>
+const wss = new WebSocketServer({ port: 8080 }, () =>
   console.log("ws server started successfully")
 );
 
 function genRoomId(length: number) {
-  const validCharacters = "mnbvcxzasdfghjklpoiuytrewq1234569870";
+  const validCharacters = "MNBVCXZASDFGHJKLPOIUYTREWQ1234569870";
   let id: string = "";
   for (let i = 0; i < length; i++) {
     const element =
@@ -20,23 +20,24 @@ const allSockets: any = {
 };
 
 wss.on("connection", (ws) => {
+  const allRoomIds = Object.keys(allSockets);
+
   ws.on("message", (message) => {
     try {
       const messageObj = JSON.parse(message as unknown as string);
-      console.log(messageObj);
-      const allRoomIds = Object.keys(allSockets);
-      console.log(allRoomIds);
 
       if (messageObj.type === "create") {
         let roomId: string;
         do {
-          roomId = genRoomId(5);
+          roomId = genRoomId(6);
         } while (allRoomIds.includes(roomId));
         console.log(roomId);
 
         allSockets[roomId] = [ws];
 
-        ws.send(JSON.stringify({ type: "sucess", message: roomId }));
+        ws.send(
+          JSON.stringify({ type: "create", success: true, payload: { roomId } })
+        );
       }
 
       if (messageObj.type == "join") {
@@ -44,7 +45,15 @@ wss.on("connection", (ws) => {
           !messageObj.payload.roomId ||
           !allRoomIds.includes(messageObj.payload.roomId)
         ) {
-          ws.send(`roomId ${messageObj.payload.roomId} does not exist`);
+          ws.send(
+            JSON.stringify({
+              type: "join",
+              success: false,
+              payload: {
+                message: `roomId ${messageObj.payload.roomId} does not exist`,
+              },
+            })
+          );
           return;
         }
 
@@ -52,10 +61,15 @@ wss.on("connection", (ws) => {
           ...allSockets[messageObj?.payload?.roomId],
           ws,
         ];
+
         ws.send(
           JSON.stringify({
-            type: "success",
-            message: `user joined room: ${messageObj?.payload?.roomId}`,
+            type: "join",
+            success: true,
+            payload: {
+              message: `user joined room: ${messageObj?.payload?.roomId}`,
+              roomId: messageObj.payload.roomId,
+            },
           })
         );
       }
@@ -69,29 +83,58 @@ wss.on("connection", (ws) => {
           !allSockets[roomId].find((socket: WebSocket) => socket == ws)
         ) {
           ws.send(
-            JSON.stringify({ type: "error", message: "Invalid room ID" })
+            JSON.stringify({
+              type: "chat",
+              success: false,
+              payload: {
+                message: "Invalid room ID",
+                roomId,
+              },
+            })
           );
 
           return;
         }
 
         allSockets[roomId].forEach((socket: WebSocket) => {
-          if (socket != ws) {
-            ws.send(
+          if (socket !== ws) {
+            socket.send(
               JSON.stringify({
                 type: "chat",
-                message: messageObj.payload.message,
+                success: true,
+                payload: { message: messageObj.payload.message, roomId },
               })
             );
           }
         });
       }
     } catch (error) {
-      console.log(error);
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          success: false,
+          error: "Invalid message format.",
+        })
+      );
     }
   });
 
-  ws.on("close", (event) => {});
+  ws.on("close", (event) => {
+    allRoomIds.forEach((id) => {
+      console.log(allSockets[id]);
+      allSockets[id] = allSockets[id].filter(
+        (socket: WebSocket) => ws !== socket
+      );
+    });
+  });
 
-  ws.send("connected");
+  ws.send(
+    JSON.stringify({
+      type: "connection",
+      success: true,
+      payload: {
+        message: "web socket connected successfully!",
+      },
+    })
+  );
 });

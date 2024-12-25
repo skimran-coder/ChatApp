@@ -1,6 +1,9 @@
+import { useRef } from "react";
 import Button from "../components/ui/Button";
 
 const LandingPage = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="flex justify-center items-center h-[90%] bg-gradient-to-br from-background to-primary">
       <div className="bg-secondary w-full max-w-md mx-auto p-8 rounded-xl shadow-lg">
@@ -24,7 +27,9 @@ const LandingPage = () => {
             <input
               id="room-id"
               type="text"
-              placeholder="e.g., 12345"
+              maxLength={6}
+              ref={inputRef}
+              placeholder="e.g., 123456"
               className="p-3 rounded-lg border border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <Button

@@ -1,6 +1,9 @@
+import { useRef } from "react";
 import Button from "../components/ui/Button";
 
 const ChatPage = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="flex justify-center items-center bg-gradient-to-br from-primary to-background shadow-lg h-[90%]">
       <div className="w-full max-w-lg h-5/6 bg-primary rounded-lg shadow-xl flex flex-col">
@@ -28,6 +31,7 @@ const ChatPage = () => {
         <div className="p-4 bg-secondary border-t border-secondary flex items-center space-x-3">
           <input
             type="text"
+            ref={inputRef}
             placeholder="Type your message..."
             className="flex-1 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm"
           />
